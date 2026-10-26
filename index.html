@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>haqi — The Agent That Can Explain Why</title>
+<style>
+  :root{
+    --bg:#0b0f0c; --ink:#f4f6f2; --dim:#9fb3a4; --acc:#7ad27a; --warn:#e6b84a; --bad:#e07a5f;
+    --card:#141a16; --line:#24302a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       display:flex;flex-direction:column;overflow:hidden}
+  main{flex:1;display:flex;align-items:center;justify-content:center;padding:6vmin}
+  section{width:min(1100px,100%);display:none}
+  section.on{display:block;animation:rise .5s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  h1{font-size:clamp(38px,6.5vmin,72px);line-height:1.08;letter-spacing:-.01em}
+  h2{font-size:clamp(30px,4.6vmin,54px);line-height:1.15;margin-bottom:3.2vmin}
+  .kick{color:var(--acc);font-weight:700;font-size:clamp(13px,1.7vmin,17px);letter-spacing:.14em;text-transform:uppercase;margin-bottom:2.2vmin}
+  p,li{font-size:clamp(18px,2.5vmin,30px);color:var(--dim);line-height:1.45}
+  strong{color:var(--ink)}
+  .hl{color:var(--acc);font-weight:600}
+  .wa{color:var(--warn);font-weight:600}
+  .bd{color:var(--bad);font-weight:600}
+  ul{list-style:none}
+  li{margin:1.6vmin 0;padding-left:1.4em;position:relative}
+  li::before{content:"→";position:absolute;left:0;color:var(--acc)}
+  table{width:100%;border-collapse:collapse;margin-top:1vmin}
+  td{border-top:1px solid var(--line);padding:1.3vmin 1vmin;font-size:clamp(15px,2.1vmin,24px);vertical-align:top}
+  td:first-child{color:var(--ink);font-weight:600;width:38%}
+  td:last-child{color:var(--dim)}
+  .code{font-family:ui-monospace,Menlo,monospace;font-size:clamp(14px,1.8vmin,21px);
+        background:var(--card);border:1px solid var(--line);border-radius:10px;padding:2vmin 2.4vmin;color:#cfe8cf;overflow-wrap:anywhere}
+  a{color:var(--acc);text-decoration:none;border-bottom:1px solid #33503a}
+  footer{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center;
+         padding:1.6vmin 3vmin;font-size:clamp(12px,1.6vmin,16px);color:#5e7364}
+  .brand{font-weight:700;color:#7d937f}
+  .brand b{color:var(--acc)}
+  .n{font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:999px;
+        padding:.9vmin 2.2vmin;margin:0 1vmin 1vmin 0;font-size:clamp(13px,1.9vmin,20px);color:var(--dim)}
+  .verdict{font-size:clamp(26px,4vmin,44px);font-weight:800}
+  .g{color:var(--acc)} .c{color:var(--warn)} .s{color:var(--bad)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:2.4vmin}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2.4vmin 2.6vmin}
+  .api{color:#a8d5aa;font-family:ui-monospace,monospace}
+  .step{color:var(--acc);font-weight:700}
+</style>
+</head>
+<body>
+<main>
+
+<section data-slide="1" class="on">
+  <p class="kick">Open Agent Hackathon 2026 · Track 02 · haqi</p>
+  <h1>A kid asks <span class="hl">"can I play outside?"</span><br>The answer must come with reasons.</h1>
+  <p style="margin-top:3.5vmin">haqi investigates live air data across scattered sources and answers with a one-glance verdict
+  plus the <strong>weighted evidence chain behind it — every receipt logged.</strong></p>
+  <p style="margin-top:2.6vmin" class="n">
+    <span class="pill">API <a href="https://haqi-api.onrender.com/proof">haqi-api.onrender.com/proof</a></span>
+    <span class="pill">Frontend <a href="https://haqi-one.vercel.app">haqi-one.vercel.app</a></span>
+    <span class="pill">Repo <a href="https://github.com/TheRealNajim/haqi">TheRealNajim/haqi</a></span>
+  </p>
+</section>
+
+<section data-slide="2">
+  <p class="kick">The problem</p>
+  <h2>Dashboards answer PM2.5.<br>Kids ask about football at 4.</h2>
+  <ul>
+    <li>A 14-year-old with asthma in Lagos doesn't read a map overlay — he asks a question about his own plan.</li>
+    <li>The data he needs is <strong>scattered</strong>: ground stations, WAQI, forecasts, satellite fire hotspots, structured sponsor views — each with different delays, units, and gaps.</li>
+    <li>Half-missing evidence should never be shown as a clean answer. <strong class="wa">"Probably fine" is how kids end up indoors with wheeze.</strong></li>
+  </ul>
+</section>
+
+<section data-slide="3">
+  <p class="kick">The product</p>
+  <h2>One question in. Verdict + why out.</h2>
+  <div class="code">POST /ask&nbsp;&nbsp;{"question":"can I cycle in 2 hours","lat":6.5244,"lon":3.3792,"profile":"asthma"}</div>
+  <div style="display:flex;gap:4vmin;align-items:baseline;margin-top:3vmin;flex-wrap:wrap">
+    <span class="verdict g">good to go</span>
+    <span class="verdict c">careful — limit hard running</span>
+    <span class="verdict s">stay in today</span>
+  </div>
+  <ul>
+    <li>Every verdict ships with an <strong>evidence chain</strong> — which station said what, when, how much we trust it, and what was blind.</li>
+    <li>Every /ask writes an append-only <strong>trust ledger</strong> receipt; <span class="api">/why/{id}</span> renders it as a graph the frontend shows ask-first.</li>
+  </ul>
+</section>
+
+<section data-slide="4">
+  <p class="kick">The agent loop</p>
+  <h2>Six steps, and the safety call is never the LLM's.</h2>
+  <table>
+    <tr><td>1 · Parse</td><td><span class="hl">NVIDIA Nemotron</span> reads kid language; <strong>regex-provable time facts always override the model's guess</strong> (horizon honesty)</td></tr>
+    <tr><td>2 · Investigate</td><td>one adapter per source, in parallel; sponsor SQL view joins the loop like any other source</td></tr>
+    <tr><td>3 · Weigh</td><td><strong>unit-group consensus</strong> — µg/m³ and AQI never blend; stale rows down-weighted and disclosed, <strong class="wa">never able to produce green alone</strong></td></tr>
+    <tr><td>4 · Decide</td><td>deterministic thresholds + lungs profile; zero LLM in verdict text</td></tr>
+    <tr><td>5 · Prove</td><td>append-only ledger; <span class="api">/why/{id}</span> = receipt graph</td></tr>
+    <tr><td>6 · Narrate</td><td><span class="hl">Meterless Nightshift</span> reads <strong>only the ledger</strong> and writes the kid-paragraph — it may add zero facts</td></tr>
+  </table>
+</section>
+
+<section data-slide="5">
+  <p class="kick">Sponsor stack</p>
+  <h2>Right model. Right lane. Same failure contract.</h2>
+  <table>
+    <tr><td>Zetaris Lightning</td><td>recipe view <span class="api">haqi_views.air_quality_readings</span> in the same investigate() fan-out as every other source; malformed rows are <strong>quarantined visibly</strong>, never silently dropped <span style="color:#5e7364">(live in the deployed API — tested)</span></td></tr>
+    <tr><td>Meterless Nightshift</td><td>the narration lane: OpenAI-compatible host on the infra PC; grounded strictly on the ledger; ships degraded to the plain graph if the lane is off</td></tr>
+    <tr><td>NVIDIA Nemotron</td><td>parse lane <span class="api">nemotron-3.5-bolt-e4b</span>, ~1.6 s answers on the hosted API — <span style="color:#5e7364">live; verified against /v1/models</span></td></tr>
+  </table>
+</section>
+
+<section data-slide="6">
+  <p class="kick">Why you can trust the output</p>
+  <h2>We tried to break it. The failures say no.</h2>
+  <table>
+    <tr><td>"football at 9 pm" (beyond the 3 h forecast horizon)</td><td>verdict: <strong class="wa">"come back nearer the time"</strong> — never a fabricated forecast</td></tr>
+    <tr><td>Kill the tunnel mid-demo</td><td>slot returns honest blind rows; verdict degrades, never errors <strong>(live-verified)</strong></td></tr>
+    <tr><td>Feed wrong-ordered SQL rows to the mapper</td><td>quarantined at weight 0 — visible, blended never</td></tr>
+    <tr><td>Impossible hour ("at 27 o'clock")</td><td>no inferable time; falls to the 2 h now-window</td></tr>
+    <tr><td>Nemotron freed to breeze about the time</td><td>deterministic floor beats it; an evening clock bug was caught and made clock-proof</td></tr>
+  </table>
+</section>
+
+<section data-slide="7">
+  <p class="kick">Judge kit</p>
+  <h2>Every claim names its enforcing test.</h2>
+  <ul>
+    <li><span class="api">/proof</span> — the machine-readable self-audit; claims → tests. <a href="https://haqi-api.onrender.com/proof">live</a></li>
+    <li>64 tests, offline-deterministic — run with <span class="api">pytest backend/tests</span> (no keys needed)</li>
+    <li><span class="api">/sources/status</span> — armed vs blind, and Zetaris even states <strong>reachable separately</strong> from env-armed</li>
+    <li>README maps each rubric criterion to its artifact · SPONSOR.md is the integration write-up</li>
+  </ul>
+  <p style="margin-top:3vmin" class="n">
+    <span class="pill">Honest limitation: Zetaris + Meterless run on the team laptop (tunnel) — armed live during the judged demo, disclosed-blind otherwise</span>
+    <span class="pill">Pollen: Europe-only dataset — Lagos honest blind by design</span>
+  </p>
+</section>
+
+<section data-slide="8">
+  <p class="kick">Try it — no account needed</p>
+  <h2>Five minutes, live right now.</h2>
+  <ul>
+    <li><span class="step">1</span>&nbsp; Open <a href="https://haqi-api.onrender.com/today">/today</a> — the now-verdict for Lagos (Chidi, 14, mild asthma)</li>
+    <li><span class="step">2</span>&nbsp; Open <a href="https://haqi-api.onrender.com/sources/status">/sources/status</a> — see what is armed and what is honest about being blind</li>
+    <li><span class="step">3</span>&nbsp; Open <a href="https://haqi-api.onrender.com/proof">/proof</a> — claims, tests, counts: no bare assertions</li>
+    <li><span class="step">4</span>&nbsp; Frontend with the same verdict + why-graph: <a href="https://haqi-one.vercel.app">haqi-one.vercel.app</a></li>
+  </ul>
+</section>
+
+</main>
+<footer>
+  <span class="brand">haqi · Healthy <b>Air</b> Quality Intelligence</span>
+  <span class="n"><span id="pagenum">1</span> / <span id="pagetotal">8</span> — ← → to move</span>
+</footer>
+<script>
+  const slides=[...document.querySelectorAll("section")];
+  let i=0, startX=0, total=slides.length;
+  document.getElementById("pagetotal").textContent=total;
+  function paint(){
+    slides.forEach((s,k)=>{s.classList.toggle("on",k===i)});
+    document.getElementById("pagenum").textContent=i+1;
+  }
+  function go(dir){
+    if(dir>0 && i<total-1){i++;paint();}
+    else if(dir<0 && i>0){i--;paint();}
+  }
+  addEventListener("keydown",e=>{
+    if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown")go(1);
+    if(e.key==="ArrowLeft"||e.key==="PageUp")go(-1);
+    if(e.key==="Home"){i=0;paint()}
+    if(e.key==="End"){i=total-1;paint()}
+  });
+  addEventListener("click",e=>{ if(e.clientX>innerWidth*0.66)go(1); else if(e.clientX<innerWidth*0.33)go(-1); });
+  addEventListener("touchstart",t=>{startX=t.touches[0].clientX},{passive:true});
+  addEventListener("touchend",t=>{const dx=t.changedTouches[0].clientX-startX; if(dx<-40)go(1); if(dx>40)go(-1);},{passive:true});
+  paint();
+</script>
+</body>
+</html>
